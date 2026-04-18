@@ -1,0 +1,284 @@
+services:
+  # MySQL Database
+  mysql:
+    image: mysql:8.0
+    container_name: campus-connect-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database/init.sql:/docker-entrypoint-initdb.d/01-init.sql
+      - ./database/dummy_data.sql:/docker-entrypoint-initdb.d/02-dummy-data.sql
+    networks:
+      - campus-connect-network
+
+  # Redis for caching
+  redis:
+    image: redis:7-alpine
+    container_name: campus-connect-redis
+    restart: always
+    ports:
+      - "6379:6379"
+    networks:
+      - campus-connect-network
+
+  # API Gateway
+  api-gateway:
+    build: ./backend/api-gateway
+    container_name: campus-connect-api-gateway
+    restart: always
+    environment:
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - JWT_ALGORITHM=${JWT_ALGORITHM}
+      - JWT_ACCESS_TOKEN_EXPIRE_MINUTES=${JWT_ACCESS_TOKEN_EXPIRE_MINUTES}
+      - AUTH_SERVICE_URL=${AUTH_SERVICE_URL}
+      - MEETUPS_SERVICE_URL=${MEETUPS_SERVICE_URL}
+      - MARKETPLACE_SERVICE_URL=${MARKETPLACE_SERVICE_URL}
+      - STOLEN_FOUND_SERVICE_URL=${STOLEN_FOUND_SERVICE_URL}
+      - ROOMS_SERVICE_URL=${ROOMS_SERVICE_URL}
+      - RENTAL_SERVICE_URL=${RENTAL_SERVICE_URL}
+      - CLUBS_SERVICE_URL=${CLUBS_SERVICE_URL}
+      - JOBS_SERVICE_URL=${JOBS_SERVICE_URL}
+      - NOTES_SERVICE_URL=${NOTES_SERVICE_URL}
+      - FOOD_SERVICE_URL=${FOOD_SERVICE_URL}
+    ports:
+      - "${API_GATEWAY_PORT}:${API_GATEWAY_PORT}"
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - campus-connect-network
+
+  # Auth Service
+  auth-service:
+    build: ./backend/services/auth
+    container_name: campus-connect-auth
+    restart: always
+    environment:
+      - MYSQL_HOST=mysql
+      - MYSQL_PORT=3306
+      - MYSQL_DATABASE=auth_db
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - JWT_ALGORITHM=${JWT_ALGORITHM}
+      - JWT_ACCESS_TOKEN_EXPIRE_MINUTES=${JWT_ACCESS_TOKEN_EXPIRE_MINUTES}
+      - REDIS_URL=${REDIS_URL}
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - campus-connect-network
+
+  # Meetups Service
+  meetups-service:
+    build: ./backend/services/meetups
+    container_name: campus-connect-meetups
+    restart: always
+    environment:
+      - MYSQL_HOST=mysql
+      - MYSQL_PORT=3306
+      - MYSQL_DATABASE=meetups_db
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY}
+      - REDIS_URL=${REDIS_URL}
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - campus-connect-network
+
+  # Marketplace Service
+  marketplace-service:
+    build: ./backend/services/marketplace
+    container_name: campus-connect-marketplace
+    restart: always
+    environment:
+      - MYSQL_HOST=mysql
+      - MYSQL_PORT=3306
+      - MYSQL_DATABASE=marketplace_db
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - REDIS_URL=${REDIS_URL}
+      - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
+      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
+      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - campus-connect-network
+
+  # Stolen & Found Service
+  stolen-found-service:
+    build: ./backend/services/stolen-found
+    container_name: campus-connect-stolen-found
+    restart: always
+    environment:
+      - MYSQL_HOST=mysql
+      - MYSQL_PORT=3306
+      - MYSQL_DATABASE=stolen_found_db
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - REDIS_URL=${REDIS_URL}
+      - FIREBASE_PROJECT_ID=${FIREBASE_PROJECT_ID}
+      - FIREBASE_PRIVATE_KEY=${FIREBASE_PRIVATE_KEY}
+      - FIREBASE_CLIENT_EMAIL=${FIREBASE_CLIENT_EMAIL}
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - campus-connect-network
+
+  # Rooms & Roommates Service
+  rooms-service:
+    build: ./backend/services/rooms-roommates
+    container_name: campus-connect-rooms
+    restart: always
+    environment:
+      - MYSQL_HOST=mysql
+      - MYSQL_PORT=3306
+      - MYSQL_DATABASE=rooms_db
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - REDIS_URL=${REDIS_URL}
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - campus-connect-network
+
+  # Rental Hub Service
+  rental-service:
+    build: ./backend/services/rental-hub
+    container_name: campus-connect-rental
+    restart: always
+    environment:
+      - MYSQL_HOST=mysql
+      - MYSQL_PORT=3306
+      - MYSQL_DATABASE=rental_db
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - REDIS_URL=${REDIS_URL}
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - campus-connect-network
+
+  # Clubs & Communities Service
+  clubs-service:
+    build: ./backend/services/clubs-communities
+    container_name: campus-connect-clubs
+    restart: always
+    environment:
+      - MYSQL_HOST=mysql
+      - MYSQL_PORT=3306
+      - MYSQL_DATABASE=clubs_db
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - REDIS_URL=${REDIS_URL}
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - campus-connect-network
+
+  # Jobs & Internships Service
+  jobs-service:
+    build: ./backend/services/jobs-internships
+    container_name: campus-connect-jobs
+    restart: always
+    environment:
+      - MYSQL_HOST=mysql
+      - MYSQL_PORT=3306
+      - MYSQL_DATABASE=jobs_db
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - REDIS_URL=${REDIS_URL}
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - campus-connect-network
+
+  # Notes & Printing Service
+  notes-service:
+    build: ./backend/services/notes-printing
+    container_name: campus-connect-notes
+    restart: always
+    environment:
+      - MYSQL_HOST=mysql
+      - MYSQL_PORT=3306
+      - MYSQL_DATABASE=notes_db
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - REDIS_URL=${REDIS_URL}
+      - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
+      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
+      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - campus-connect-network
+
+  # Food Service
+  food-service:
+    build: ./backend/services/food
+    container_name: campus-connect-food
+    restart: always
+    environment:
+      - MYSQL_HOST=mysql
+      - MYSQL_PORT=3306
+      - MYSQL_DATABASE=food_db
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - REDIS_URL=${REDIS_URL}
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - campus-connect-network
+
+  # WebSocket Service for real-time chat
+  websocket-service:
+    build: ./backend/websocket
+    container_name: campus-connect-websocket
+    restart: always
+    environment:
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - JWT_ALGORITHM=${JWT_ALGORITHM}
+      - REDIS_URL=${REDIS_URL}
+    ports:
+      - "8080:8080"
+    depends_on:
+      - redis
+    networks:
+      - campus-connect-network
+
+  # Frontend
+  frontend:
+    build: ./frontend
+    container_name: campus-connect-frontend
+    restart: always
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api-gateway
+    networks:
+      - campus-connect-network
+
+volumes:
+  mysql_data:
+
+networks:
+  campus-connect-network:
+    driver: bridge

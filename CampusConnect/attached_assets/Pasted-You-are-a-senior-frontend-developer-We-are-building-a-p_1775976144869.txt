@@ -1,0 +1,148 @@
+You are a senior frontend developer.
+We are building a production-level E-commerce frontend using:
+- React.js (Vite)
+- Tailwind CSS
+- Axios
+- React Router DOM v6
+
+EXISTING BACKEND CONTEXT:
+- Backend runs at: http://localhost:5000
+- API prefix: /api/v1
+- Auth endpoints:
+  POST /api/v1/auth/register
+  POST /api/v1/auth/login
+  GET  /api/v1/auth/profile  (requires Bearer token)
+- Response format:
+  {
+    statusCode: 200,
+    message: "...",
+    data: { user: {}, token: "..." },
+    timestamp: "..."
+  }
+- JWT token received on login → sent as:
+  Authorization: Bearer <token>
+
+IMPORTANT RULES:
+- Build ONLY this module
+- Keep code clean and scalable
+- Follow component-based architecture
+- No UI component library (Tailwind only)
+- No form library (vanilla React state)
+- Do NOT move to next module
+- Ask for confirmation before marking complete
+
+========================
+MODULE: Frontend Setup + Authentication UI
+========================
+
+1. PROJECT SETUP
+========================
+- Create React app using Vite
+- Install and configure:
+  - axios
+  - react-router-dom v6
+  - tailwindcss v3
+
+========================
+2. FOLDER STRUCTURE
+========================
+src/
+  components/
+    common/        ← Button, Input, Spinner, Alert
+  pages/
+    auth/          ← Login.jsx, Register.jsx
+  services/
+    api.js         ← axios instance with interceptors
+    authService.js ← login(), register(), getProfile()
+  context/
+    AuthContext.jsx
+  routes/
+    ProtectedRoute.jsx
+    PublicRoute.jsx
+    AppRoutes.jsx
+  utils/
+    token.js       ← getToken(), setToken(), removeToken()
+
+========================
+3. ROUTING SYSTEM
+========================
+Routes:
+- /login          → PublicRoute (redirect to /products if logged in)
+- /register       → PublicRoute (redirect to /products if logged in)
+- /products       → ProtectedRoute (redirect to /login if not logged in)
+- /               → redirect to /products
+
+========================
+4. API SETUP
+========================
+- Axios instance with baseURL = http://localhost:5000/api/v1
+- Request interceptor → attach token from localStorage
+- Response interceptor:
+  - If 401 → clear token → redirect to /login
+  - Extract data from response.data.data automatically
+
+========================
+5. AUTH CONTEXT
+========================
+Store:
+- user object
+- token
+- isAuthenticated (boolean)
+- isLoading (boolean — for checking token on app load)
+
+Functions:
+- login(email, password) → calls API → stores token → sets user
+- logout() → clears token → resets state
+- On app load → if token exists → fetch /profile → restore user state
+
+========================
+6. TOKEN STORAGE
+========================
+- Store JWT in localStorage under key 'token'
+- Create utils/token.js with:
+  getToken(), setToken(), removeToken()
+
+========================
+7. AUTH PAGES
+========================
+LOGIN PAGE:
+- Email + password fields
+- Loading state on submit button
+- Show API error message on failure
+- Redirect to /products on success
+
+REGISTER PAGE:
+- first_name, last_name, email, password fields
+- Match backend field names exactly
+- Loading state on submit
+- Show API error message on failure
+- Redirect to /login on success with success message
+
+========================
+8. UI REQUIREMENTS
+========================
+- Clean, centered card layout
+- Fully responsive (mobile + desktop)
+- Input focus states
+- Disabled button during loading
+- Show spinner during loading
+- Error messages in red below fields or as alert
+- Success messages in green
+
+========================
+OUTPUT FORMAT:
+========================
+1. Setup commands (Vite + Tailwind + dependencies)
+2. Complete folder structure
+3. Full code for every file:
+   - utils/token.js
+   - services/api.js
+   - services/authService.js
+   - context/AuthContext.jsx
+   - routes/AppRoutes.jsx
+   - routes/ProtectedRoute.jsx
+   - routes/PublicRoute.jsx
+   - pages/auth/Login.jsx
+   - pages/auth/Register.jsx
+   - components/common/Button.jsx
+   - components/com

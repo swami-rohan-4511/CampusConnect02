@@ -1,0 +1,398 @@
+# Render Deployment Configuration
+# This file configures deployment for all Campus Connect services on Render
+
+services:
+  # API Gateway
+  - type: web
+    name: campus-connect-api-gateway
+    runtime: python3
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "uvicorn main:app --host 0.0.0.0 --port $PORT"
+    sourceDir: backend/api-gateway
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: JWT_ALGORITHM
+        value: HS256
+      - key: JWT_ACCESS_TOKEN_EXPIRE_MINUTES
+        value: 30
+      - key: AUTH_SERVICE_URL
+        value: https://campus-connect-auth.onrender.com
+      - key: MEETUPS_SERVICE_URL
+        value: https://campus-connect-meetups.onrender.com
+      - key: MARKETPLACE_SERVICE_URL
+        value: https://campus-connect-marketplace.onrender.com
+      - key: STOLEN_FOUND_SERVICE_URL
+        value: https://campus-connect-stolen-found.onrender.com
+      - key: ROOMS_SERVICE_URL
+        value: https://campus-connect-rooms.onrender.com
+      - key: RENTAL_SERVICE_URL
+        value: https://campus-connect-rental.onrender.com
+      - key: CLUBS_SERVICE_URL
+        value: https://campus-connect-clubs.onrender.com
+      - key: JOBS_SERVICE_URL
+        value: https://campus-connect-jobs.onrender.com
+      - key: NOTES_SERVICE_URL
+        value: https://campus-connect-notes.onrender.com
+      - key: FOOD_SERVICE_URL
+        value: https://campus-connect-food.onrender.com
+
+  # Auth Service
+  - type: web
+    name: campus-connect-auth
+    runtime: python3
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "uvicorn main:app --host 0.0.0.0 --port $PORT"
+    sourceDir: backend/services/auth
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: MYSQL_HOST
+        value: mysql
+      - key: MYSQL_PORT
+        value: 3306
+      - key: MYSQL_DATABASE
+        value: auth_db
+      - key: MYSQL_USER
+        fromSecret: db_user
+      - key: MYSQL_PASSWORD
+        fromSecret: db_password
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: JWT_ALGORITHM
+        value: HS256
+      - key: JWT_ACCESS_TOKEN_EXPIRE_MINUTES
+        value: 30
+      - key: REDIS_URL
+        fromSecret: redis_url
+
+  # Meetups Service
+  - type: web
+    name: campus-connect-meetups
+    runtime: python3
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "uvicorn main:app --host 0.0.0.0 --port $PORT"
+    sourceDir: backend/services/meetups
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: MYSQL_HOST
+        value: mysql
+      - key: MYSQL_PORT
+        value: 3306
+      - key: MYSQL_DATABASE
+        value: meetups_db
+      - key: MYSQL_USER
+        fromSecret: db_user
+      - key: MYSQL_PASSWORD
+        fromSecret: db_password
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: JWT_ALGORITHM
+        value: HS256
+      - key: GOOGLE_MAPS_API_KEY
+        fromSecret: google_maps_api_key
+      - key: REDIS_URL
+        fromSecret: redis_url
+
+  # Marketplace Service
+  - type: web
+    name: campus-connect-marketplace
+    runtime: python3
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "uvicorn main:app --host 0.0.0.0 --port $PORT"
+    sourceDir: backend/services/marketplace
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: MYSQL_HOST
+        value: mysql
+      - key: MYSQL_PORT
+        value: 3306
+      - key: MYSQL_DATABASE
+        value: marketplace_db
+      - key: MYSQL_USER
+        fromSecret: db_user
+      - key: MYSQL_PASSWORD
+        fromSecret: db_password
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: JWT_ALGORITHM
+        value: HS256
+      - key: REDIS_URL
+        fromSecret: redis_url
+      - key: CLOUDINARY_CLOUD_NAME
+        fromSecret: cloudinary_cloud_name
+      - key: CLOUDINARY_API_KEY
+        fromSecret: cloudinary_api_key
+      - key: CLOUDINARY_API_SECRET
+        fromSecret: cloudinary_api_secret
+
+  # Stolen & Found Service
+  - type: web
+    name: campus-connect-stolen-found
+    runtime: python3
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "uvicorn main:app --host 0.0.0.0 --port $PORT"
+    sourceDir: backend/services/stolen-found
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: MYSQL_HOST
+        value: mysql
+      - key: MYSQL_PORT
+        value: 3306
+      - key: MYSQL_DATABASE
+        value: stolen_found_db
+      - key: MYSQL_USER
+        fromSecret: db_user
+      - key: MYSQL_PASSWORD
+        fromSecret: db_password
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: JWT_ALGORITHM
+        value: HS256
+      - key: REDIS_URL
+        fromSecret: redis_url
+      - key: FIREBASE_PROJECT_ID
+        fromSecret: firebase_project_id
+      - key: FIREBASE_PRIVATE_KEY
+        fromSecret: firebase_private_key
+      - key: FIREBASE_CLIENT_EMAIL
+        fromSecret: firebase_client_email
+      - key: CLOUDINARY_CLOUD_NAME
+        fromSecret: cloudinary_cloud_name
+      - key: CLOUDINARY_API_KEY
+        fromSecret: cloudinary_api_key
+      - key: CLOUDINARY_API_SECRET
+        fromSecret: cloudinary_api_secret
+
+  # Rooms & Roommates Service
+  - type: web
+    name: campus-connect-rooms
+    runtime: python3
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "uvicorn main:app --host 0.0.0.0 --port $PORT"
+    sourceDir: backend/services/rooms-roommates
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: MYSQL_HOST
+        value: mysql
+      - key: MYSQL_PORT
+        value: 3306
+      - key: MYSQL_DATABASE
+        value: rooms_db
+      - key: MYSQL_USER
+        fromSecret: db_user
+      - key: MYSQL_PASSWORD
+        fromSecret: db_password
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: JWT_ALGORITHM
+        value: HS256
+      - key: REDIS_URL
+        fromSecret: redis_url
+
+  # Rental Hub Service
+  - type: web
+    name: campus-connect-rental
+    runtime: python3
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "uvicorn main:app --host 0.0.0.0 --port $PORT"
+    sourceDir: backend/services/rental-hub
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: MYSQL_HOST
+        value: mysql
+      - key: MYSQL_PORT
+        value: 3306
+      - key: MYSQL_DATABASE
+        value: rental_db
+      - key: MYSQL_USER
+        fromSecret: db_user
+      - key: MYSQL_PASSWORD
+        fromSecret: db_password
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: JWT_ALGORITHM
+        value: HS256
+      - key: REDIS_URL
+        fromSecret: redis_url
+
+  # Clubs & Communities Service
+  - type: web
+    name: campus-connect-clubs
+    runtime: python3
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "uvicorn main:app --host 0.0.0.0 --port $PORT"
+    sourceDir: backend/services/clubs-communities
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: MYSQL_HOST
+        value: mysql
+      - key: MYSQL_PORT
+        value: 3306
+      - key: MYSQL_DATABASE
+        value: clubs_db
+      - key: MYSQL_USER
+        fromSecret: db_user
+      - key: MYSQL_PASSWORD
+        fromSecret: db_password
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: JWT_ALGORITHM
+        value: HS256
+      - key: REDIS_URL
+        fromSecret: redis_url
+
+  # Jobs & Internships Service
+  - type: web
+    name: campus-connect-jobs
+    runtime: python3
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "uvicorn main:app --host 0.0.0.0 --port $PORT"
+    sourceDir: backend/services/jobs-internships
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: MYSQL_HOST
+        value: mysql
+      - key: MYSQL_PORT
+        value: 3306
+      - key: MYSQL_DATABASE
+        value: jobs_db
+      - key: MYSQL_USER
+        fromSecret: db_user
+      - key: MYSQL_PASSWORD
+        fromSecret: db_password
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: JWT_ALGORITHM
+        value: HS256
+      - key: REDIS_URL
+        fromSecret: redis_url
+      - key: CLOUDINARY_CLOUD_NAME
+        fromSecret: cloudinary_cloud_name
+      - key: CLOUDINARY_API_KEY
+        fromSecret: cloudinary_api_key
+      - key: CLOUDINARY_API_SECRET
+        fromSecret: cloudinary_api_secret
+
+  # Notes & Printing Service
+  - type: web
+    name: campus-connect-notes
+    runtime: python3
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "uvicorn main:app --host 0.0.0.0 --port $PORT"
+    sourceDir: backend/services/notes-printing
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: MYSQL_HOST
+        value: mysql
+      - key: MYSQL_PORT
+        value: 3306
+      - key: MYSQL_DATABASE
+        value: notes_db
+      - key: MYSQL_USER
+        fromSecret: db_user
+      - key: MYSQL_PASSWORD
+        fromSecret: db_password
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: JWT_ALGORITHM
+        value: HS256
+      - key: REDIS_URL
+        fromSecret: redis_url
+      - key: CLOUDINARY_CLOUD_NAME
+        fromSecret: cloudinary_cloud_name
+      - key: CLOUDINARY_API_KEY
+        fromSecret: cloudinary_api_key
+      - key: CLOUDINARY_API_SECRET
+        fromSecret: cloudinary_api_secret
+
+  # Food Service
+  - type: web
+    name: campus-connect-food
+    runtime: python3
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "uvicorn main:app --host 0.0.0.0 --port $PORT"
+    sourceDir: backend/services/food
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: MYSQL_HOST
+        value: mysql
+      - key: MYSQL_PORT
+        value: 3306
+      - key: MYSQL_DATABASE
+        value: food_db
+      - key: MYSQL_USER
+        fromSecret: db_user
+      - key: MYSQL_PASSWORD
+        fromSecret: db_password
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: JWT_ALGORITHM
+        value: HS256
+      - key: REDIS_URL
+        fromSecret: redis_url
+
+  # WebSocket Service
+  - type: web
+    name: campus-connect-websocket
+    runtime: python3
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "uvicorn main:app --host 0.0.0.0 --port $PORT"
+    sourceDir: backend/websocket
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: JWT_ALGORITHM
+        value: HS256
+      - key: REDIS_URL
+        fromSecret: redis_url
+
+# Database
+databases:
+  - name: campus-connect-db
+    databaseName: campus_connect
+    user: campus_user
+    plan: starter
+
+# Redis for caching and sessions
+redis:
+  - name: campus-connect-redis
+    plan: starter
+
+# Environment groups for shared secrets
+envVarGroups:
+  - name: campus-connect-secrets
+    envVars:
+      - key: db_user
+        value: campus_user
+      - key: db_password
+        generateValue: true
+      - key: redis_url
+        value: redis://campus-connect-redis:6379
+      - key: google_maps_api_key
+        value: your_google_maps_api_key
+      - key: firebase_project_id
+        value: your_firebase_project_id
+      - key: firebase_private_key
+        value: your_firebase_private_key
+      - key: firebase_client_email
+        value: your_firebase_client_email
+      - key: cloudinary_cloud_name
+        value: your_cloudinary_cloud_name
+      - key: cloudinary_api_key
+        value: your_cloudinary_api_key
+      - key: cloudinary_api_secret
+        value: your_cloudinary_api_secret
