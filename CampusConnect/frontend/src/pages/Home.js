@@ -31,6 +31,7 @@ const Home = () => {
   const theme = useTheme();
   const navigate = useNavigate();
   const { isAuthenticated, user } = useSelector((state) => state.auth);
+  const isDark = theme.palette.mode === 'dark';
 
   const features = [
     {
@@ -83,7 +84,7 @@ const Home = () => {
       color: '#689f38',
     },
     {
-      title: 'Notes & Printing',
+      title: 'Notes & Resources',
       description: 'Share study materials and find printing services',
       icon: <MenuBook fontSize="large" color="primary" />,
       path: '/notes',
@@ -105,16 +106,50 @@ const Home = () => {
         sx={{
           textAlign: 'center',
           py: 8,
-          background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
+          px: 3,
+          background: isDark
+            ? 'linear-gradient(135deg, #0d1b2a 0%, #1a1a2e 50%, #16213e 100%)'
+            : `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
           borderRadius: 4,
           color: 'white',
           mb: 6,
+          border: isDark ? '1px solid rgba(255,255,255,0.08)' : 'none',
+          boxShadow: isDark
+            ? '0 8px 32px rgba(0,0,0,0.5)'
+            : '0 8px 32px rgba(25,118,210,0.3)',
+          position: 'relative',
+          overflow: 'hidden',
+          '&::before': isDark
+            ? {
+                content: '""',
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                background:
+                  'radial-gradient(circle at 20% 50%, rgba(25,118,210,0.15) 0%, transparent 60%), radial-gradient(circle at 80% 20%, rgba(220,0,78,0.1) 0%, transparent 50%)',
+                pointerEvents: 'none',
+              }
+            : {},
         }}
       >
-        <Typography variant="h2" component="h1" gutterBottom fontWeight="bold">
+        <Typography
+          variant="h2"
+          component="h1"
+          gutterBottom
+          fontWeight="bold"
+          sx={{
+            textShadow: isDark ? '0 2px 12px rgba(0,0,0,0.6)' : 'none',
+          }}
+        >
           Welcome to Campus Connect
         </Typography>
-        <Typography variant="h5" component="p" sx={{ mb: 4, opacity: 0.9 }}>
+        <Typography
+          variant="h5"
+          component="p"
+          sx={{ mb: 4, opacity: isDark ? 0.75 : 0.9 }}
+        >
           Your one-stop platform for all campus needs
         </Typography>
         {isAuthenticated ? (
@@ -122,7 +157,11 @@ const Home = () => {
             <Chip
               avatar={<Avatar>{user?.full_name?.charAt(0) || user?.email?.charAt(0)}</Avatar>}
               label={`Welcome back, ${user?.full_name || user?.email}!`}
-              sx={{ bgcolor: 'rgba(255, 255, 255, 0.2)', color: 'white' }}
+              sx={{
+                bgcolor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.2)',
+                color: 'white',
+                border: isDark ? '1px solid rgba(255,255,255,0.15)' : 'none',
+              }}
             />
           </Box>
         ) : (
@@ -133,8 +172,9 @@ const Home = () => {
               onClick={() => navigate('/signup')}
               sx={{
                 bgcolor: 'white',
-                color: theme.palette.primary.main,
-                '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.9)' },
+                color: isDark ? '#0d1b2a' : theme.palette.primary.main,
+                fontWeight: 700,
+                '&:hover': { bgcolor: 'rgba(255,255,255,0.88)' },
               }}
             >
               Get Started
@@ -144,9 +184,12 @@ const Home = () => {
               size="large"
               onClick={() => navigate('/login')}
               sx={{
-                borderColor: 'white',
+                borderColor: isDark ? 'rgba(255,255,255,0.5)' : 'white',
                 color: 'white',
-                '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.1)' },
+                '&:hover': {
+                  bgcolor: 'rgba(255,255,255,0.1)',
+                  borderColor: 'white',
+                },
               }}
             >
               Sign In
@@ -172,6 +215,7 @@ const Home = () => {
                 display: 'flex',
                 flexDirection: 'column',
                 transition: 'transform 0.2s, box-shadow 0.2s',
+                bgcolor: isDark ? 'background.paper' : 'white',
                 '&:hover': {
                   transform: 'translateY(-4px)',
                   boxShadow: theme.shadows[8],
@@ -179,9 +223,7 @@ const Home = () => {
               }}
             >
               <CardContent sx={{ flexGrow: 1, textAlign: 'center' }}>
-                <Box sx={{ mb: 2 }}>
-                  {feature.icon}
-                </Box>
+                <Box sx={{ mb: 2 }}>{feature.icon}</Box>
                 <Typography variant="h5" component="h3" gutterBottom fontWeight="bold">
                   {feature.title}
                 </Typography>
@@ -196,10 +238,7 @@ const Home = () => {
                   onClick={() => navigate(feature.path)}
                   sx={{
                     backgroundColor: feature.color,
-                    '&:hover': {
-                      backgroundColor: feature.color,
-                      opacity: 0.9,
-                    },
+                    '&:hover': { backgroundColor: feature.color, opacity: 0.88 },
                   }}
                 >
                   Explore
@@ -215,9 +254,13 @@ const Home = () => {
         sx={{
           mt: 8,
           py: 6,
-          backgroundColor: theme.palette.grey[100],
+          px: 4,
+          background: isDark
+            ? 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)'
+            : 'linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%)',
           borderRadius: 4,
           textAlign: 'center',
+          border: isDark ? '1px solid rgba(255,255,255,0.06)' : 'none',
         }}
       >
         <Typography variant="h4" component="h3" gutterBottom fontWeight="bold">
@@ -227,38 +270,21 @@ const Home = () => {
           Connect, share, and thrive in your campus community
         </Typography>
         <Grid container spacing={4} justifyContent="center">
-          <Grid item xs={6} sm={3}>
-            <Typography variant="h3" color="primary" fontWeight="bold">
-              10K+
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Active Users
-            </Typography>
-          </Grid>
-          <Grid item xs={6} sm={3}>
-            <Typography variant="h3" color="primary" fontWeight="bold">
-              500+
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Daily Transactions
-            </Typography>
-          </Grid>
-          <Grid item xs={6} sm={3}>
-            <Typography variant="h3" color="primary" fontWeight="bold">
-              50+
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Campus Clubs
-            </Typography>
-          </Grid>
-          <Grid item xs={6} sm={3}>
-            <Typography variant="h3" color="primary" fontWeight="bold">
-              24/7
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Support
-            </Typography>
-          </Grid>
+          {[
+            { value: '10K+', label: 'Active Users' },
+            { value: '500+', label: 'Daily Transactions' },
+            { value: '50+', label: 'Campus Clubs' },
+            { value: '24/7', label: 'Support' },
+          ].map((stat) => (
+            <Grid item xs={6} sm={3} key={stat.label}>
+              <Typography variant="h3" color="primary" fontWeight="bold">
+                {stat.value}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                {stat.label}
+              </Typography>
+            </Grid>
+          ))}
         </Grid>
       </Box>
     </Container>
