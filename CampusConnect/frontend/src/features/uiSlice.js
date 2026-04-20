@@ -1,9 +1,11 @@
 import { createSlice } from '@reduxjs/toolkit';
 
+const savedTheme = localStorage.getItem('campusTheme') || 'light';
+
 const uiSlice = createSlice({
   name: 'ui',
   initialState: {
-    theme: 'light',
+    theme: savedTheme,
     sidebarOpen: false,
     loading: false,
     notifications: [],
@@ -11,9 +13,11 @@ const uiSlice = createSlice({
   reducers: {
     toggleTheme: (state) => {
       state.theme = state.theme === 'light' ? 'dark' : 'light';
+      localStorage.setItem('campusTheme', state.theme);
     },
     setTheme: (state, action) => {
       state.theme = action.payload;
+      localStorage.setItem('campusTheme', state.theme);
     },
     toggleSidebar: (state) => {
       state.sidebarOpen = !state.sidebarOpen;
