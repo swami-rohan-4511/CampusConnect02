@@ -1058,19 +1058,28 @@ app.add_middleware(GZipMiddleware, minimum_size=1000)
 # Serve uploaded files
 app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 
-# SPA routing — serve index.html for browser navigations on known frontend paths
-_SPA_PATHS = {
-    "/", "/meetups", "/marketplace", "/stolen-found", "/rooms", "/rental",
-    "/clubs", "/jobs", "/notes", "/food", "/profile", "/login", "/signup", "/admin",
-}
+# Static/asset paths that browsers fetch as resources — never intercept these
+_ASSET_PREFIXES = (
+    "/static/", "/uploads/", "/favicon.ico", "/logo192.png",
+    "/logo512.png", "/manifest.json", "/asset-manifest.json",
+    "/robots.txt", "/docs", "/openapi.json", "/redoc",
+)
 
 
 @app.middleware("http")
 async def spa_middleware(request: Request, call_next):
-    if _frontend_ready:
-        path = request.url.path
+    """
+    Intercept browser page-load requests (Accept: text/html) and serve the
+    React SPA, so that reloading ANY client-side route works correctly.
+    Asset requests and programmatic API calls (Accept: */* or application/json)
+    are passed through to their respective handlers.
+    """
+    if _frontend_ready and request.method == "GET":
         accept = request.headers.get("accept", "")
-        if "text/html" in accept and path in _SPA_PATHS:
+        path = request.url.path
+        is_browser_nav = "text/html" in accept
+        is_asset = path.startswith(_ASSET_PREFIXES)
+        if is_browser_nav and not is_asset:
             return FileResponse(os.path.join(FRONTEND_BUILD, "index.html"))
     return await call_next(request)
 
